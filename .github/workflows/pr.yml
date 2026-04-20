@@ -1,0 +1,38 @@
+name: pull_request-workflow
+
+on:
+ pull_request:
+  branches:
+    - dev
+
+jobs:
+    build:
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: get the code
+          uses: actions/checkout@v4
+
+        - name: set up JDK
+          uses: actions/checkout@v4
+          with:
+            distribution: temurin
+            java-version: 17
+
+        - name: initialize codeQL
+          uses: github/codeql-action/init@v3
+          with:
+            languages: java
+
+        - name: Build & Test with maven
+          run: mvn --batch-mode test
+
+        - name: perform codeql Analysis
+          uses: github/codeql-action/analyze@v3
+
+        - name: Publish Test Results
+          uses: EnricoMi/publish-unit-test-result-action@v2
+          with:
+            files: "**/target/surefire-reports/**/*.xml"
+            comment_mode: always
+     
